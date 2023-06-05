@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.morpheus.previewtyapi.mapper.AdminLoginMapper">
+
+
+	<!--     adminlogin -->
+	<select id="selectAdminSignin" resultType="com.morpheus.previewtyapi.vo.UserVO" parameterType="com.morpheus.previewtyapi.vo.UserVO">
+		SELECT USER_ID
+			 , USER_NM
+			 , USER_LOGIN_ID
+			 , EMAIL
+			 , APPROVED
+			 , COUNT(*) AS columCnt
+		FROM ADMIN_INFO
+		WHERE USER_LOGIN_ID = #{userLoginId}
+		  AND USER_PW = #{userPw}
+		  AND DEL_YN = 'N'
+	</select>
+
+	<!-- selectConciergeUser -->
+	<select id="selectAdminUserInfo" resultType="com.morpheus.previewtyapi.vo.UserVO" parameterType="String">
+		SELECT USER_INFO.USER_NM AS userNm,
+		       USER_INFO.EMAIL AS email,
+		       USER_INFO.USER_ID AS userId,
+			   COUNT(*) AS columCnt
+		FROM USER_INFO
+				 JOIN USER_MATCHING ON USER_MATCHING.MATCHING_USER_ID = USER_INFO.USER_ID
+				 JOIN ADMIN_INFO ON USER_MATCHING.MATCHING_CON_ID = ADMIN_INFO.USER_ID
+		WHERE ADMIN_INFO.USER_LOGIN_ID = #{userLoginId}
+			  AND ADMIN_INFO.DEL_YN = 'N'
+	</select>
+
+	<select id="selectUserInfo" parameterType="String" resultType="com.morpheus.previewtyapi.vo.UserVO">
+		SELECT USER_ID AS userId,
+		       USER_NM AS userNm,
+		       PHONE AS phone,
+		       EMAIL AS email,
+		       IN_DT AS inDt,
+			   GENDER As gender,
+		       BIRTH AS birth,
+			   COUNT(*) AS columCnt
+		FROM USER_INFO
+		WHERE DEL_YN = 'N'
+			AND USER_ID = #{userId}
+	</select>
+
+	<!--
+	 ====LoadProfileImage 이미지 사이즈 이슈 있어 안하기로함
+	 	SELECT profile_img FROM user_info WHERE email = '%s'
+		SELECT profile_img FROM admin_info WHERE email = '%s'
+
+	 -->
+
+</mapper>

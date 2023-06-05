@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.morpheus.previewtyapi.mapper.RecordMapper">
+
+
+    <select id="findRecordList" resultType="Map" parameterType="com.morpheus.previewtyapi.vo.v2.RecordVO">
+        SELECT * FROM (	SELECT @rownum := @rownum + 1 as RN, A.*	FROM (
+            SELECT CHART
+            , RECORD
+            , TYPE
+            , DESCRIPTION
+            , IN_ID
+            , IN_DT
+            , UP_ID
+            , UP_DT
+            FROM RECORD_INFO
+            WHERE 1=1
+                AND DEL_YN = 'N'
+                AND CHART = #{chart}
+                <if test="record != null and record != ''">
+                    AND RECORD = #{record}
+                </if>
+                <if test="type != null and type != ''">
+                    AND TYPE = #{type}
+                </if>
+            ORDER BY RECORD DESC, TYPE DESC
+        ) A, (select @rownum :=0) r	) B	WHERE B.RN BETWEEN #{pageStart} AND #{pageEnd}
+    </select>
+
+    <select id="findRecordListCount" resultType="int" parameterType="com.morpheus.previewtyapi.vo.v2.RecordVO">
+        SELECT
+               COUNT(*)
+        FROM RECORD_INFO
+        WHERE DEL_YN = 'N'
+            AND CHART = #{chart}
+            <if test="record != null and record != ''">
+                AND RECORD = #{record}
+            </if>
+            <if test="type != null and type != ''">
+                AND TYPE = #{type}
+            </if>
+    </select>
+
+    <insert id="insertRecord" parameterType="com.morpheus.previewtyapi.vo.v2.RecordVO">
+        INSERT INTO RECORD_INFO (
+            CHART
+            ,RECORD
+            ,TYPE
+            ,DESCRIPTION
+            ,IN_ID
+            ,IN_DT
+            ,UP_ID
+            ,UP_DT
+            ,DEL_YN
+        ) VALUES (
+            #{chart}
+            ,#{record}
+            ,#{type}
+            ,#{description}
+            ,#{in_id}
+            ,DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+            ,#{up_id}
+            ,DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+            ,'N'
+        )
+    </insert>
+
+    <update id="updateRecord" parameterType="com.morpheus.previewtyapi.vo.v2.RecordVO">
+        UPDATE RECORD_INFO
+        SET UP_ID = #{up_id}
+          <if test="description != null and description != ''">
+            ,DESCRIPTION = #{description}
+          </if>
+          ,UP_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+        WHERE DEL_YN = 'N'
+            AND CHART = #{chart}
+            AND RECORD = #{record}
+            AND TYPE = #{type}
+    </update>
+
+    <update id="deleteRecord" parameterType="com.morpheus.previewtyapi.vo.v2.RecordVO">
+        UPDATE RECORD_INFO
+        SET UP_ID = #{up_id}
+          ,DEL_YN = 'Y'
+          ,UP_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+        WHERE DEL_YN = 'N'
+          AND CHART = #{chart}
+          AND RECORD = #{record}
+          AND TYPE = #{type}
+    </update>
+
+    <select id="findRecordInfoRPk" parameterType="com.morpheus.previewtyapi.vo.v2.RecordVO" resultType="String">
+        SELECT MAX(RECORD) FROM RECORD_INFO WHERE CHART = #{chart}
+    </select>
+
+    <select id="findRecordInfoTPk" parameterType="com.morpheus.previewtyapi.vo.v2.RecordVO" resultType="String">
+        SELECT MAX(TYPE) FROM RECORD_INFO WHERE CHART = #{chart} AND RECORD = #{record}
+    </select>
+</mapper>

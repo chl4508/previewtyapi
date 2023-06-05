@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.morpheus.previewtyapi.mapper.DataMapper">
+
+
+    <select id="findDataList" resultType="Map" parameterType="com.morpheus.previewtyapi.vo.v2.DataVO">
+        SELECT * FROM (	SELECT @rownum := @rownum + 1 as RN, A.*	FROM (
+            SELECT CHART
+            , RECORD
+            , TYPE
+            , NAME
+            , FORMAT
+            , FILE_ID
+            , IN_ID
+            , IN_DT
+            , UP_ID
+            , UP_DT
+            FROM DATA_INFO
+            WHERE 1=1
+                AND DEL_YN = 'N'
+                AND CHART = #{chart}
+                AND RECORD = #{record}
+                AND TYPE = #{type}
+                <if test="name != null and name != ''">
+                    AND NAME = #{name}
+                </if>
+        ) A, (select @rownum :=0) r	) B	WHERE B.RN BETWEEN #{pageStart} AND #{pageEnd}
+    </select>
+
+    <select id="findDataListCount" resultType="int" parameterType="com.morpheus.previewtyapi.vo.v2.DataVO">
+        SELECT COUNT(*)
+        FROM DATA_INFO
+        WHERE DEL_YN = 'N'
+            AND CHART = #{chart}
+            AND RECORD = #{record}
+            AND TYPE = #{type}
+            <if test="name != null and name != ''">
+                AND NAME = #{name}
+            </if>
+    </select>
+
+    <insert id="insertData" parameterType="com.morpheus.previewtyapi.vo.v2.DataVO">
+        INSERT INTO DATA_INFO (
+            CHART
+            ,RECORD
+            ,TYPE
+            ,NAME
+            ,FILE_ID
+            ,FORMAT
+            ,IN_ID
+            ,IN_DT
+            ,UP_ID
+            ,UP_DT
+            ,DEL_YN
+        ) VALUES (
+            #{chart}
+            ,#{record}
+            ,#{type}
+            ,#{name}
+            ,#{file_id}
+            ,#{format}
+            ,#{in_id}
+            ,DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+            ,#{up_id}
+            ,DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+            ,'N'
+        )
+    </insert>
+
+    <update id="updateData" parameterType="com.morpheus.previewtyapi.vo.v2.DataVO">
+        UPDATE DATA_INFO
+        SET UP_ID = #{up_id}
+          <if test="file_id != null and file_id != ''">
+          ,FILE_ID = #{file_id}
+          </if>
+          <if test="format != null and format != ''">
+          ,FORMAT = #{format}
+          </if>
+          ,UP_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+        WHERE DEL_YN = 'N'
+            AND CHART = #{chart}
+            AND RECORD = #{record}
+            AND TYPE = #{type}
+            AND NAME = #{name}
+    </update>
+
+    <update id="deleteData" parameterType="com.morpheus.previewtyapi.vo.v2.DataVO">
+        UPDATE DATA_INFO
+        SET UP_ID = #{up_id}
+          ,DEL_YN = 'Y'
+          ,UP_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+        WHERE DEL_YN = 'N'
+          AND CHART = #{chart}
+          AND RECORD = #{record}
+          AND TYPE = #{type}
+          AND NAME = #{name}
+    </update>
+</mapper>

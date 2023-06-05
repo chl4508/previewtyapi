@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.morpheus.previewtyapi.mapper.PatientMapper">
+
+
+	<select id="findPatientListCount" resultType="int" parameterType="com.morpheus.previewtyapi.vo.v2.PatientVO">
+		SELECT COUNT(*)
+			FROM PATIENT_INFO P
+			LEFT JOIN MATCHING_INFO M ON P.CHART = M.MATCHING_USER_ID
+			WHERE 1=1
+				AND P.DEL_YN = 'N'
+			  	AND M.DEL_YN = 'N'
+			  	AND M.MATCHING_CON_ID = #{matching_con_id}
+			<if test="chart != null and chart != ''">
+				AND P.CHART = #{chart}
+			</if>
+			<if test="content != null and content != ''">
+				AND (P.USER_NM LIKE '%${content}%' OR P.PHONE LIKE '%${content}%')
+			</if>
+	</select>
+
+
+	<select id="findPatientList" resultType="Map" parameterType="com.morpheus.previewtyapi.vo.v2.PatientVO">
+		SELECT * FROM (	SELECT @rownum := @rownum + 1 as RN, A.*	FROM (
+			SELECT P.CHART AS CHART
+			, P.USER_NM AS USER_NM
+			, P.BIRTH AS BIRTH
+			, P.GENDER AS GENDER
+			, P.ADDRESS AS ADDRESS
+			, P.EMAIL AS EMAIL
+			, P.PHONE AS PHONE
+		    , P.COMMENT AS COMMENT
+			, P.IN_ID AS IN_ID
+			, P.IN_DT AS IN_DT
+			, P.UP_ID AS UP_ID
+			, P.UP_DT AS UP_DT
+			FROM PATIENT_INFO P
+			LEFT JOIN MATCHING_INFO M ON P.CHART = M.MATCHING_USER_ID
+			WHERE 1=1
+				AND P.DEL_YN = 'N'
+				AND M.DEL_YN = 'N'
+				AND M.MATCHING_CON_ID = #{matching_con_id}
+			<if test="chart != null and chart != ''">
+				AND P.CHART = #{chart}
+			</if>
+			<if test="content != null and content != ''">
+				AND (P.USER_NM LIKE '%${content}%' OR P.PHONE LIKE '%${content}%')
+			</if>
+			ORDER BY P.IN_DT DESC
+		) A, (select @rownum :=0) r	) B	WHERE B.RN BETWEEN #{pageStart} AND #{pageEnd}
+	</select>
+
+
+	<select id="findPatientCount" resultType="int" parameterType="com.morpheus.previewtyapi.vo.v2.PatientVO">
+		SELECT COUNT(*)
+		FROM PATIENT_INFO
+		WHERE DEL_YN = 'N'
+		  AND CHART = #{chart}
+	</select>
+
+	<insert id="insertPatient" parameterType="com.morpheus.previewtyapi.vo.v2.PatientVO">
+		INSERT INTO PATIENT_INFO (
+			CHART
+			,USER_NM
+			,BIRTH
+			,GENDER
+			,ADDRESS
+			,EMAIL
+			,PHONE
+			,COMMENT
+			,IN_ID
+			,IN_DT
+			,UP_ID
+			,UP_DT
+			,DEL_YN
+		) VALUES (
+			#{chart}
+			,#{user_nm}
+			,#{birth}
+			,#{gender}
+			,#{address}
+			,#{email}
+			,#{phone}
+			,#{comment}
+			,#{in_id}
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+			,#{up_id}
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+			,'N'
+		)
+	</insert>
+
+	<insert id="insertMatching" parameterType="com.morpheus.previewtyapi.vo.v2.PatientVO">
+		INSERT INTO MATCHING_INFO (
+		    MATCHING_USER_ID
+		    ,MATCHING_CON_ID
+			,IN_ID
+			,IN_DT
+			,UP_ID
+			,UP_DT
+			,DEL_YN
+		) VALUES (
+			#{matching_user_id}
+			,#{matching_con_id}
+			,#{in_id}
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+			,#{up_id}
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+			,'N'
+		)
+	</insert>
+
+	<update id="updatePatient" parameterType="com.morpheus.previewtyapi.vo.v2.PatientVO">
+		UPDATE PATIENT_INFO
+			SET UP_ID = #{up_id}
+				<if test="user_nm != null and user_nm != ''">
+					,USER_NM = #{user_nm}
+				</if>
+				<if test="gender != null and gender != ''">
+					,GENDER = #{gender}
+				</if>
+				<if test="address != null and address != ''">
+				,ADDRESS = #{address}
+				</if>
+				<if test="email != null and email != ''">
+				,EMAIL = #{email}
+				</if>
+				<if test="phone != null and phone != ''">
+				,PHONE = #{phone}
+				</if>
+				<if test="birth != null and birth != ''">
+			    ,BIRTH = #{birth}
+				</if>
+				<if test="comment != null and comment != ''">
+			    ,COMMENT = #{comment}
+				</if>
+				,UP_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+			WHERE CHART = #{chart} AND DEL_YN = 'N'
+	</update>
+
+	<update id="deletePatient" parameterType="com.morpheus.previewtyapi.vo.v2.PatientVO">
+		UPDATE PATIENT_INFO
+		SET DEL_YN = 'Y'
+			,UP_ID = #{up_id}
+		  	,UP_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+		WHERE CHART = #{chart} AND DEL_YN = 'N'
+	</update>
+
+	<update id="deleteMatching" parameterType="com.morpheus.previewtyapi.vo.v2.PatientVO">
+		UPDATE MATCHING_INFO
+		SET DEL_YN = 'Y'
+		  ,UP_ID = #{up_id}
+		  ,UP_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+		WHERE MATCHING_USER_ID = #{matching_user_id} AND DEL_YN = 'N'
+	</update>
+
+</mapper>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.morpheus.previewtyapi.mapper.ConsultingMapper">
+
+
+    <select id="findConsultingList" resultType="Map" parameterType="com.morpheus.previewtyapi.vo.v2.ConsultingVO">
+        SELECT * FROM (	SELECT @rownum := @rownum + 1 as RN, A.*	FROM (
+            SELECT CONSULTING_ID
+            , CONSULTING_RECORD
+            , CONSULTING_TITLE
+            , CONSULTING_CONTENTS
+            , IN_ID
+            , IN_DT
+            , UP_ID
+            , UP_DT
+            FROM CONSULTING_INFO
+            WHERE 1=1
+                AND DEL_YN = 'N'
+                AND CONSULTING_RECORD = #{consulting_record}
+                <if test="in_id != null and in_id != ''">
+                    AND IN_ID = #{in_id}
+                </if>
+            ORDER BY IN_DT DESC
+        ) A, (select @rownum :=0) r	) B	WHERE B.RN BETWEEN #{pageStart} AND #{pageEnd}
+    </select>
+
+    <select id="findConsultingCount" resultType="int" parameterType="com.morpheus.previewtyapi.vo.v2.ConsultingVO">
+        SELECT COUNT(*) FROM CONSULTING_INFO
+            WHERE 1=1
+            AND DEL_YN = 'N'
+            AND CONSULTING_RECORD = #{consulting_record}
+            <if test="in_id != null and in_id != ''">
+                AND IN_ID = #{in_id}
+            </if>
+    </select>
+
+    <insert id="insertConsulting" parameterType="com.morpheus.previewtyapi.vo.v2.ConsultingVO">
+        INSERT INTO CONSULTING_INFO (
+            CONSULTING_RECORD
+            ,CONSULTING_TITLE
+            ,CONSULTING_CONTENTS
+            ,IN_ID
+            ,IN_DT
+            ,UP_ID
+            ,UP_DT
+            ,DEL_YN
+        ) VALUES (
+            #{consulting_record}
+            ,#{consulting_title}
+            ,#{consulting_contents}
+            ,#{in_id}
+            ,DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+            ,#{up_id}
+            ,DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+            ,'N'
+        )
+        <selectKey keyProperty="consulting_id" resultType="int" order="AFTER">
+            SELECT MAX(CONSULTING_ID) AS consulting_id FROM CONSULTING_INFO
+        </selectKey>
+    </insert>
+
+
+    <select id="findConsultingIdCount" parameterType="com.morpheus.previewtyapi.vo.v2.ConsultingVO" resultType="int">
+        SELECT COUNT(*) FROM CONSULTING_INFO WHERE CONSULTING_ID = #{consulting_id} AND DEL_YN = 'N'
+    </select>
+
+    <update id="updateConsulting" parameterType="com.morpheus.previewtyapi.vo.v2.ConsultingVO">
+        UPDATE CONSULTING_INFO
+            SET UP_ID = #{up_id}
+            <if test="consulting_title != null and consulting_title != ''">
+                ,CONSULTING_TITLE = #{consulting_title}
+            </if>
+            <if test="consulting_contents != null and consulting_contents != ''">
+                ,CONSULTING_CONTENTS = #{consulting_contents}
+            </if>
+            ,UP_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+        WHERE CONSULTING_ID = #{consulting_id} AND DEL_YN = 'N'
+    </update>
+
+    <update id="deleteConsulting" parameterType="com.morpheus.previewtyapi.vo.v2.ConsultingVO">
+        UPDATE CONSULTING_INFO
+        SET DEL_YN = 'Y'
+          ,UP_ID = #{up_id}
+          ,UP_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%S')
+        WHERE CONSULTING_ID = #{consulting_id} AND DEL_YN = 'N'
+    </update>
+
+</mapper>

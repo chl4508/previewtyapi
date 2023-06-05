@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.morpheus.previewtyapi.mapper.AnalysisMapper">
+
+
+
+
+	<insert id="insertUserRecord" parameterType="com.morpheus.previewtyapi.dto.UserRecordDto">
+		INSERT INTO ANALYSIS_RECORD
+		    (
+		     	ANALYSIS_ID,
+		    	ANALYSIS_RECORD,
+		    	ANALYSIS_STATUS,
+		    	USER_ID,
+		    	IN_ID,
+		    	UP_ID,
+		    	IN_DT,
+		    	UP_DT
+		     ) VALUES(
+				#{analysisId},
+				#{analysisRecord},
+				#{analysisStatus},
+				#{userId},
+				#{inId},
+				#{upId},
+				#{inDt},
+				#{upDt}
+		     )
+	</insert>
+	<update id="updateUserRecord" parameterType="com.morpheus.previewtyapi.dto.UserRecordDto">
+		UPDATE ANALYSIS_RECORD
+			SET UP_ID= #{upId},
+				UP_DT = #{upDt},
+			    ANALYSIS_STATUS = #{analysisStatus}
+		WHERE DEL_YN = 'N'
+		  	AND ANALYSIS_ID = (SELECT ANALYSIS_ID FROM ANALYSIS_RECORD WHERE DEL_YN = 'N' AND USER_ID = #{userId} AND ANALYSIS_RECORD = #{analysisRecord})
+	</update>
+
+	<select id="selectAnalysisId" parameterType="com.morpheus.previewtyapi.vo.AnalysisVO" resultType="map">
+		SELECT
+			ANALYSIS_ID AS analysisId,
+			COUNT(*) AS columCnt
+		FROM ANALYSIS_RECORD
+		WHERE DEL_YN = 'N'
+		  AND USER_ID = #{userId}
+		  AND ANALYSIS_RECORD = #{analysisRecord}
+	</select>
+
+	<select id="selectAnalysisCount" parameterType="com.morpheus.previewtyapi.vo.AnalysisVO" resultType="int">
+		SELECT COUNT(*) FROM ${tableName}
+			WHERE DEL_YN = 'N'
+			      AND ANALYSIS_ID = (SELECT ANALYSIS_ID FROM ANALYSIS_RECORD WHERE DEL_YN = 'N' AND USER_ID = #{userId} AND ANALYSIS_RECORD = #{analysisRecord})
+	</select>
+
+
+	<update id="updateFacialWidth" parameterType="com.morpheus.previewtyapi.dto.FacialWidthDto">
+		UPDATE ANALYSIS_FACIAL_WIDTH
+			SET UP_ID= #{upId},
+			    UP_DT = #{upDt},
+			    UPPER_FACE = #{upperFace},
+			    MIDDLE_FACE = #{middleFace},
+			    LOWER_FACE = #{lowerFace}
+			WHERE DEL_YN = 'N'
+			  AND ANALYSIS_ID = #{analysisId}
+	</update>
+	<insert id="insertFacialWidth" parameterType="com.morpheus.previewtyapi.dto.FacialWidthDto">
+		INSERT INTO ANALYSIS_FACIAL_WIDTH
+		    ( 	ANALYSIS_ID,
+		     	IN_ID,
+		     	UP_ID,
+		     	IN_DT,
+		     	UP_DT,
+		     	UPPER_FACE,
+		     	MIDDLE_FACE,
+		     	LOWER_FACE
+		    ) VALUES(
+		        #{analysisId},
+				#{inId},
+				#{upId},
+		    	#{inDt},
+		        #{upDt},
+		        #{upperFace},
+		        #{middleFace},
+		        #{lowerFace}
+		    )
+	</insert>
+
+	<update id="updateFacialHeightBalance" parameterType="com.morpheus.previewtyapi.dto.FacialHeightBalanceDto">
+		UPDATE ANALYSIS_FACIAL_HEIGHT_BALANCE
+			SET UP_ID= #{upId},
+			    UP_DT = #{upDt},
+			    WHOLE_FACE = #{wholeFace},
+			    LOWER_FACE = #{lowerFace}
+			WHERE DEL_YN = 'N'
+			    AND ANALYSIS_ID = #{analysisId}
+	</update>
+	<insert id="insertFacialHeightBalance" parameterType="com.morpheus.previewtyapi.dto.FacialHeightBalanceDto">
+		INSERT INTO ANALYSIS_FACIAL_HEIGHT_BALANCE
+		    (
+				ANALYSIS_ID,
+			    IN_ID,
+		     	UP_ID,
+		     	IN_DT,
+		     	UP_DT,
+		     	WHOLE_FACE,
+		     	LOWER_FACE
+		    ) VALUES(
+				#{analysisId},
+				#{inId},
+				#{upId},
+				#{inDt},
+				#{upDt},
+				#{wholeFace},
+				#{lowerFace}
+		    )
+	</insert>
+
+	<update id="updateEyesLength" parameterType="com.morpheus.previewtyapi.dto.EyesLengthDto">
+		UPDATE ANALYSIS_EYES_LENGTH
+			SET UP_ID= #{upId},
+			    UP_DT = #{upDt},
+			    PF_WIDTH_R = #{pfWidthR},
+			    PF_WIDTH_L = #{pfWidthL},
+			    IC_WIDTH = #{icWidth},
+			    PF_HEIGHT_R = #{pfHeightR},
+			    PF_HEIGHT_L = #{pfHeightL},
+			    UE_HEIGHT_R = #{ueHeightR},
+			    UE_HEIGHT_L = #{ueHeightL}
+			WHERE DEL_YN = 'N'
+			  AND ANALYSIS_ID = #{analysisId}
+
+	</update>
+	<insert id="insertEyesLength" parameterType="com.morpheus.previewtyapi.dto.EyesLengthDto">
+		INSERT INTO ANALYSIS_EYES_LENGTH
+		    (
+		     	ANALYSIS_ID,
+		     	IN_ID,
+		     	UP_ID,
+		     	IN_DT,
+		     	UP_DT,
+		     	PF_WIDTH_R,
+		     	PF_WIDTH_L,
+		     	IC_WIDTH,
+		     	PF_HEIGHT_R,
+		     	PF_HEIGHT_L,
+		     	UE_HEIGHT_R,
+		     	UE_HEIGHT_L
+		    ) VALUES(
+				#{analysisId},
+				#{inId},
+				#{upId},
+				#{inDt},
+				#{upDt},
+				#{pfWidthR},
+				#{pfWidthL},
+				#{icWidth},
+				#{pfHeightR},
+				#{pfHeightL},
+				#{ueHeightR},
+				#{ueHeightL}
+			)
+	</insert>
+
+	<update id="updateEyeWidthBalance" parameterType="com.morpheus.previewtyapi.dto.EyeWidthBalanceDto">
+		UPDATE ANALYSIS_EYE_WIDTH_BALANCE
+			SET UP_ID= #{upId},
+			    UP_DT = #{upDt},
+			    WHOLE_FACE = #{wholeFace}
+			WHERE DEL_YN = 'N'
+			  AND ANALYSIS_ID = #{analysisId}
+	</update>
+	<insert id="insertEyeWidthBalance" parameterType="com.morpheus.previewtyapi.dto.EyeWidthBalanceDto">
+		INSERT INTO ANALYSIS_EYE_WIDTH_BALANCE
+		    (
+				ANALYSIS_ID,
+		    	IN_ID,
+		    	UP_ID,
+		    	IN_DT,
+		    	UP_DT,
+		    	WHOLE_FACE
+		    ) VALUES(
+				#{analysisId},
+				#{inId},
+				#{upId},
+				#{inDt},
+				#{upDt},
+		        #{wholeFace}
+		    )
+	</insert>
+
+
+	<update id="updateNoseLipsLength" parameterType="com.morpheus.previewtyapi.dto.NoseLipsLengthDto">
+		UPDATE ANALYSIS_NOSE_LIPS_LENGTH
+			SET UP_ID= #{upId},
+			    UP_DT = #{upDt},
+			    NASAL_BRIDGE_LENGTH = #{nasalBridgeLength},
+			    NASAL_HEIGHT = #{nasalHeight},
+			    E_LINE_TO_UPPER_LIP = #{eLineToUpperLip},
+			    E_LINE_TO_LOWER_LIP = #{eLineToLowerLip}
+			WHERE DEL_YN = 'N'
+			  AND ANALYSIS_ID = #{analysisId}
+	</update>
+	<insert id="insertNoseLipsLength" parameterType="com.morpheus.previewtyapi.dto.NoseLipsLengthDto">
+		INSERT INTO ANALYSIS_NOSE_LIPS_LENGTH
+		    (
+		     	ANALYSIS_ID,
+		     	IN_ID,
+		     	UP_ID,
+		     	IN_DT,
+		     	UP_DT,
+		     	NASAL_BRIDGE_LENGTH,
+		     	NASAL_HEIGHT,
+		     	E_LINE_TO_UPPER_LIP,
+		     	E_LINE_TO_LOWER_LIP
+		    ) values(
+				#{analysisId},
+				#{inId},
+				#{upId},
+				#{inDt},
+				#{upDt},
+				#{nasalBridgeLength},
+                #{nasalHeight},
+				#{eLineToUpperLip},
+				#{eLineToLowerLip}
+		    )
+	</insert>
+
+	<update id="updateNoseLipsAngle" parameterType="com.morpheus.previewtyapi.dto.NoseLipsAngleDto">
+		UPDATE ANALYSIS_NOSE_LIPS_ANGLE
+			SET UP_ID= #{upId},
+			    UP_DT = #{upDt},
+			    NASOFRONTAL= #{nasofrontal},
+			    NASOLABIAL= #{nasolabial},
+			    LABIOMENTAL= #{labiomental}
+			WHERE DEL_YN = 'N'
+			  AND ANALYSIS_ID = #{analysisId}
+	</update>
+	<insert id="insertNoseLipsAngle" parameterType="com.morpheus.previewtyapi.dto.NoseLipsAngleDto">
+		INSERT INTO ANALYSIS_NOSE_LIPS_ANGLE
+		    (
+		     	ANALYSIS_ID,
+				IN_ID,
+				UP_ID,
+				IN_DT,
+				UP_DT,
+				NASOFRONTAL,
+				NASOLABIAL,
+				LABIOMENTAL
+		     ) VALUES(
+				#{analysisId},
+				#{inId},
+				#{upId},
+				#{inDt},
+				#{upDt},
+				#{nasofrontal},
+				#{nasolabial},
+				#{labiomental}
+		     )
+	</insert>
+
+
+
+
+	<update id="updateAsymmetryByVolume" parameterType="com.morpheus.previewtyapi.dto.AsymmetryByVolumeDto">
+		UPDATE ANALYSIS_ASYMMETRY_BY_VOLUME
+			SET UP_ID= #{upId}
+				UP_DT = #{upDt},
+		    	UPPER_FACE_R= #{upperFaceR},
+			    UPPER_FACE_L= #{upperFaceL},
+			    MIDDLE_FACE_R= #{middleFaceR},
+			    MIDDLE_FACE_L= #{middleFaceL},
+			    LOWER_FACE_R= #{lowerFaceR},
+			    LOWER_FACE_L= #{lowerFaceL},
+			    TOTAL_FACE= #{totalFace}
+			WHERE DEL_YN = 'N'
+			  AND ANALYSIS_ID = #{analysisId}
+	</update>
+	<insert id="insertAsymmetryByVolume" parameterType="com.morpheus.previewtyapi.dto.AsymmetryByVolumeDto">
+		INSERT INTO ANALYSIS_ASYMMETRY_BY_VOLUME
+		    (
+		     	ANALYSIS_ID,
+				IN_ID,
+				UP_ID,
+				IN_DT,
+				UP_DT,
+				UPPER_FACE_R,
+				UPPER_FACE_L,
+				MIDDLE_FACE_R,
+				MIDDLE_FACE_L,
+				LOWER_FACE_R,
+				LOWER_FACE_L,
+				TOTAL_FACE
+		     ) VALUES(
+			 	#{analysisId},
+			 	#{inId},
+			 	#{upId},
+			 	#{inDt},
+			 	#{upDt},
+				#{upperFaceR},
+				#{upperFaceL},
+				#{middleFaceR},
+				#{middleFaceL},
+				#{lowerFaceR},
+				#{lowerFaceL},
+				#{totalFace}
+		    )
+	</insert>
+
+
+	<update id="updateCurvedLength" parameterType="com.morpheus.previewtyapi.dto.CurvedLengthDto">
+		UPDATE ANALYSIS_CURVED_LENGTH
+			SET UP_ID= #{upId}
+				UP_DT = #{upDt},
+			    T_EX_R = #{tExR},
+			    T_AI_R = #{tAiR},
+			    T_CH_R = #{tChR},
+			    T_GN_R = #{tGnR},
+			    T_EX_L = #{tExL},
+			    T_AI_L = #{tAiL},
+			    T_CH_L = #{tChL},
+			    T_GN_L = #{tGnL}
+			WHERE DEL_YN = 'N'
+			  AND ANALYSIS_ID = #{analysisId}
+	</update>
+	<insert id="insertCurvedLength" parameterType="com.morpheus.previewtyapi.dto.CurvedLengthDto">
+		INSERT INTO ANALYSIS_CURVED_LENGTH
+		    (
+		     	ANALYSIS_ID,
+		     	IN_ID,
+		     	UP_ID,
+				IN_DT,
+				UP_DT,
+				T_EX_R,
+				T_AI_R,
+				T_CH_R,
+				T_GN_R,
+				T_EX_L,
+				T_AI_L,
+				T_CH_L,
+				T_GN_L
+		     ) VALUES(
+				#{analysisId},
+				#{inId},
+				#{upId},
+				#{inDt},
+				#{upDt},
+				#{tExR},
+				#{tAiR},
+				#{tChR},
+				#{tGnR},
+				#{tExL},
+				#{tAiL},
+				#{tChL},
+				#{tGnL}
+			)
+	</insert>
+
+	<update id="updateApProjection" parameterType="com.morpheus.previewtyapi.dto.ApProjectionDto">
+		UPDATE ANALYSIS_AP_PROJECTION
+			SET UP_ID= #{upId}
+				UP_DT = #{upDt},
+			    PUPIL_R = #{pupilR},
+			    PUPIL_L = #{pupilL},
+			    NASION = #{nasion},
+			    PRONASALE = #{pronasale},
+			    SUBNASALE = #{subnasale},
+			    UPPER_LIP_PT = #{upperLipPt},
+			    LOWER_LIP_PT = #{lowerLipPt},
+			    POGONION = #{pogonion},
+			    CHEILION_R = #{cheilionR},
+			    CHEILION_L = #{cheilionL},
+			    ZYGOMATIC_PT_R = #{zygomaticPtR},
+			    ZYGOMATIC_PT_L = #{zygomaticPtL}
+			WHERE DEL_YN = 'N'
+			  AND ANALYSIS_ID = #{analysisId}
+	</update>
+	<insert id="insertApProjection" parameterType="com.morpheus.previewtyapi.dto.ApProjectionDto">
+		INSERT INTO ANALYSIS_AP_PROJECTION
+		    (
+		     	ANALYSIS_ID,
+				IN_ID,
+				UP_ID,
+				IN_DT,
+				UP_DT,
+				PUPIL_R,
+				PUPIL_L,
+				NASION,
+				PRONASALE,
+				SUBNASALE,
+				UPPER_LIP_PT,
+				LOWER_LIP_PT,
+				POGONION,
+				CHEILION_R,
+				CHEILION_L,
+				ZYGOMATIC_PT_R,
+				ZYGOMATIC_PT_L
+		    ) VALUES(
+				#{analysisId},
+				#{inId},
+				#{upId},
+				#{inDt},
+				#{upDt},
+				#{pupilR},
+				#{pupilL},
+				#{nasion},
+				#{pronasale},
+				#{subnasale},
+				#{upperLipPt},
+				#{lowerLipPt},
+				#{pogonion},
+				#{cheilionR},
+				#{cheilionL},
+				#{zygomaticPtR},
+				#{zygomaticPtL}
+		    )
+	</insert>
+
+
+</mapper>
